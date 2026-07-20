@@ -1,0 +1,12 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+ext {
+    extName = 'Happymh'
+    pkgNameSuffix = 'zh.happymh'
+    extClass = '.Happymh'
+    extVersionCode = 27
+    libVersion = '1.4'
+}
+
+apply from: "$rootDir/common.gradle"
