@@ -1,0 +1,12 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+ext {
+    extName = 'GoDa漫画'
+    pkgNameSuffix = 'zh.baozimhorg'
+   extClass = '.GoDaManhua'
+    extVersionCode = 38
+   libVersion = '1.4'
+}
+
+apply from: "$rootDir/common.gradle"
