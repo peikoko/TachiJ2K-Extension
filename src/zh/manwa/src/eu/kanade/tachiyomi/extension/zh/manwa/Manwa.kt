@@ -50,12 +50,31 @@ class Manwa :
     private val preferences: SharedPreferences = Injekt.get<Application>().getSharedPreferences("source_$id", 0x0000)
     override val baseUrl: String = getTargetUrl()
 
-    private fun getTargetUrl(): String {
-        val url = preferences.getString(APP_CUSTOMIZATION_URL_KEY, "")!!
-        if (url.isNotBlank()) {
-            return url
+    init {
+        // 首次安装时持久化默认配置，避免用户必须手动进入设置选择镜像和图源
+        val editor = preferences.edit()
+        if (!preferences.contains(MIRROR_KEY)) {
+            editor.putString(MIRROR_KEY, MIRROR_ENTRIES[0])
         }
-        return preferences.getString(MIRROR_KEY, MIRROR_ENTRIES[0])!!
+        // 图源默认 None（param 为空串）
+        if (!preferences.contains(IMAGE_HOST_KEY)) {
+            editor.putString(IMAGE_HOST_KEY, "")
+        }
+        editor.apply()
+    }
+
+    private fun getTargetUrl(): String {
+        // 自定义URL优先，但必须携带 http/https scheme，否则视为非法配置
+        val customUrl = preferences.getString(APP_CUSTOMIZATION_URL_KEY, "")!!
+        if (customUrl.isNotBlank() && customUrl.startsWith("http")) {
+            return customUrl
+        }
+        val mirror = preferences.getString(MIRROR_KEY, "")!!
+        if (mirror.startsWith("http")) {
+            return mirror
+        }
+        // 配置缺失或非法时回退首个默认镜像，避免拼接出无 scheme 的 URL（如 "1/rank"）
+        return MIRROR_ENTRIES[0]
     }
 
     private val rewriteOctetStream: Interceptor = Interceptor { chain ->
@@ -290,7 +309,9 @@ class Manwa :
                 val urlListJson = JSONArray(preferences.getString(APP_URL_LIST_PREF_KEY, "")!!)
                 val urlList = ArrayList<String>()
                 for (i in 0 until urlListJson.length()) {
-                    urlList.add(urlListJson.getString(i))
+                    val u = urlListJson.getString(i)
+                    // 仅保留带 scheme 的合法镜像，过滤脏数据
+                    if (u.startsWith("http")) urlList.add(u)
                 }
                 urlList.add(0, MIRROR_ENTRIES[0])
                 urlList.toTypedArray()
@@ -308,7 +329,13 @@ class Manwa :
             title = "自定义URL"
             summary = "指定访问的目标URL，优先级高于选择的镜像URL"
             setOnPreferenceChangeListener { _, newValue ->
-                preferences.edit().putString(APP_CUSTOMIZATION_URL_KEY, newValue as String).commit()
+                val v = (newValue as String).trim()
+                if (v.isEmpty() || v.startsWith("http")) {
+                    preferences.edit().putString(APP_CUSTOMIZATION_URL_KEY, v).commit()
+                } else {
+                    // 拒绝无 scheme 的非法URL，避免运行期崩溃
+                    false
+                }
             }
         }.let { screen.addPreference(it) }
 
