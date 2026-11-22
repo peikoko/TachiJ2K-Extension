@@ -1,0 +1,12 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+ext {
+    extName = 'MH1234'
+    pkgNameSuffix = 'zh.mh1234'
+    extClass = '.MH1234'
+    extVersionCode = 4
+    libVersion = '1.4'
+}
+
+apply from: "$rootDir/common.gradle"

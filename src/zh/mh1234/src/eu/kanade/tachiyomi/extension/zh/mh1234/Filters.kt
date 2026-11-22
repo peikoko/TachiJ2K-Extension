@@ -1,0 +1,115 @@
+package eu.kanade.tachiyomi.extension.zh.mh1234
+
+import eu.kanade.tachiyomi.source.model.Filter
+
+class GenreFilter :
+    SelectFilter(
+        "题材",
+        arrayOf(
+            Pair("全部", "0"),
+            Pair("恋爱", "17"),
+            Pair("搞笑", "13"),
+            Pair("日漫", "240"),
+            Pair("其他", "97"),
+            Pair("热血", "6"),
+            Pair("都市", "31"),
+            Pair("国漫", "257"),
+            Pair("少女", "187"),
+            Pair("科幻", "8"),
+            Pair("魔幻", "69"),
+            Pair("奇幻", "96"),
+            Pair("冒险", "7"),
+            Pair("生活", "29"),
+            Pair("韩漫", "209"),
+            Pair("纯爱", "77"),
+            Pair("少年", "204"),
+            Pair("校园", "11"),
+            Pair("耽美", "16"),
+            Pair("古风", "28"),
+            Pair("剧情", "84"),
+            Pair("喜剧", "380"),
+            Pair("日常", "104"),
+            Pair("悬疑", "18"),
+            Pair("玄幻", "10"),
+            Pair("格斗", "94"),
+            Pair("穿越", "14"),
+            Pair("恐怖", "19"),
+            Pair("武侠", "66"),
+            Pair("灵异", "26"),
+            Pair("大女主", "172"),
+            Pair("百合", "27"),
+            Pair("推理", "112"),
+            Pair("战斗", "107"),
+            Pair("治愈", "67"),
+            Pair("侦探", "80"),
+            Pair("竞技", "23"),
+            Pair("重生", "171"),
+            Pair("系统", "173"),
+            Pair("逆袭", "126"),
+            Pair("短篇", "354"),
+            Pair("浪漫", "100"),
+            Pair("职场", "73"),
+            Pair("动作", "21"),
+            Pair("魔法", "95"),
+            Pair("后宫", "15"),
+            Pair("体育", "132"),
+            Pair("青春", "99"),
+            Pair("总裁", "170"),
+            Pair("霸总", "9"),
+            Pair("复仇", "124"),
+            Pair("架空", "25"),
+            Pair("西幻", "224"),
+            Pair("现代", "222"),
+            Pair("宫廷", "136"),
+            Pair("异能", "108"),
+            Pair("欧风", "228"),
+            Pair("神鬼", "74"),
+            Pair("美食", "89"),
+            Pair("欢乐向", "70"),
+            Pair("唯美", "65"),
+            Pair("四格", "83"),
+            Pair("励志", "24"),
+            Pair("故事漫画", "60"),
+            Pair("战争", "20"),
+            Pair("脑洞", "90"),
+            Pair("修真", "12"),
+            Pair("社会", "150"),
+            Pair("萌系", "85"),
+            Pair("修仙", "178"),
+            Pair("轻小说", "79"),
+            Pair("历史", "72"),
+            Pair("游戏", "143"),
+            Pair("神魔", "149"),
+            Pair("仙侠", "82"),
+            Pair("娱乐圈", "128"),
+            Pair("东方", "86"),
+            Pair("轻松", "103"),
+            Pair("权谋", "137"),
+            Pair("同人", "22"),
+            Pair("明星", "75"),
+        ),
+    )
+
+class StatusFilter :
+    SelectFilter(
+        "状态",
+        arrayOf(
+            Pair("全部", "0"),
+            Pair("连载", "1"),
+            Pair("完结", "2"),
+        ),
+    )
+
+class SortFilter :
+    SelectFilter(
+        "排序",
+        arrayOf(
+            Pair("最新", "id"),
+            Pair("热门", "hits"),
+            Pair("更新", "addtime"),
+        ),
+    )
+
+abstract class SelectFilter(name: String, val options: Array<Pair<String, String>>) : Filter.Select<String>(name, options.map { it.first }.toTypedArray()) {
+    val selected get() = options[state]
+}

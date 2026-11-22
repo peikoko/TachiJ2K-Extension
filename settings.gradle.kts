@@ -10,3 +10,6 @@ project(":extensions:individual:zh:baozimhorg").projectDir = file("src/zh/baozim
 include(":extensions:individual:zh:manwa")
 
 project(":extensions:individual:zh:manwa").projectDir = file("src/zh/manwa")
+include(":extensions:individual:zh:mh1234")
+
+project(":extensions:individual:zh:mh1234").projectDir = file("src/zh/mh1234")
