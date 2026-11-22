@@ -132,7 +132,7 @@ class MH1234 : HttpSource() {
                 setUrlWithoutDomain(element.absUrl("href"))
                 name = element.text()
             }
-        }.reversed()
+        }
     }
 
     // Manga View Page

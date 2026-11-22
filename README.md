@@ -23,6 +23,10 @@ Keiyoushi 新版 Happymh 已迁移到新扩展接口和新版 Kotlin Serializati
 
 本仓库将源实现改回 `HttpSource` 与 RxJava 1 接口，并使用 Android `org.json` 解析响应，避免向旧宿主引入新版 Serialization ABI，同时保留当前网站接口、章节分页、GA Cookie 和图片页解密逻辑。
 
+## 移植注意事项
+
+- 章节列表必须按站点页面原始顺序返回（最新章节在前）。TachiJ2K 默认"按源顺序"正序显示，第一项会排在列表顶部；Keiyoushi 上游要求旧→新顺序并做 `.reversed()`，移植时不能照搬，否则目录会整体反转。
+
 ## 仓库结构
 
 ```text
