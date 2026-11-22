@@ -112,7 +112,11 @@ class MH1234 : HttpSource() {
         return SManga.create().apply {
             val info = document.selectFirst(".mint-work-info")
             author = info?.select("p")?.getOrNull(0)?.text()?.removeSuffix(" 著")
-            genre = info?.select("p")?.getOrNull(1)?.ownText()?.trim()
+            genre = info?.select("p")?.getOrNull(1)?.ownText()
+                ?.trim()
+                ?.split(Regex("\\s+"))
+                ?.filter { it.isNotBlank() }
+                ?.joinToString(", ")
             status = when (document.selectFirst(".mint-tag")?.text()) {
                 "连载中" -> SManga.ONGOING
                 "完结", "已完结" -> SManga.COMPLETED
