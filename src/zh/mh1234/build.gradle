@@ -5,7 +5,7 @@ ext {
     extName = 'MH1234'
     pkgNameSuffix = 'zh.mh1234'
     extClass = '.MH1234'
-    extVersionCode = 6
+    extVersionCode = 7
     libVersion = '1.4'
 }
 

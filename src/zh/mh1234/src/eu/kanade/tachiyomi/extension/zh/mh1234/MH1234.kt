@@ -9,6 +9,7 @@ import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.util.asJsoup
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.Request
 import okhttp3.Response
 import org.jsoup.nodes.Element
@@ -59,10 +60,8 @@ class MH1234 : HttpSource() {
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request = if (query.isNotBlank()) {
         val url = baseUrl.toHttpUrl().newBuilder().apply {
             addPathSegment("search")
-            addQueryParameter("key", query)
-            if (page > 1) {
-                addQueryParameter("page", page.toString())
-            }
+            addPathSegment(query)
+            if (page > 1) addPathSegment(page.toString())
         }.build()
         GET(url, headers)
     } else {
@@ -92,9 +91,27 @@ class MH1234 : HttpSource() {
 
     private fun mangaListParse(response: Response): MangasPage {
         val document = response.asJsoup()
-        val mangas = document.select(MANGA_LIST_SELECTOR).map { mangaFromElement(it) }
-        val hasNextPage = document.selectFirst(NEXT_PAGE_SELECTOR) != null
-        return MangasPage(mangas, hasNextPage)
+        // 只取第一个结果网格，排除搜索页底部的"推荐漫画"区块
+        val mangas = document.selectFirst(MANGA_LIST_SELECTOR)
+            ?.select("article.comic-card")
+            ?.map { mangaFromElement(it) }
+            ?.distinctBy { it.url }
+            ?: emptyList()
+        // 搜索页的"当前页"标记不可靠，用"末页"链接的页码和请求页比较判断翻页
+        val page = currentPage(response.request.url)
+        val lastPage = document.selectFirst(LAST_PAGE_SELECTOR)
+            ?.absUrl("href")
+            ?.toHttpUrlOrNull()
+            ?.pathSegments
+            ?.lastOrNull()
+            ?.toIntOrNull()
+            ?: page
+        return MangasPage(mangas, mangas.isNotEmpty() && page < lastPage)
+    }
+
+    private fun currentPage(url: okhttp3.HttpUrl): Int {
+        val segments = url.pathSegments
+        return if (segments.size >= 3) segments.last().toIntOrNull() ?: 1 else 1
     }
 
     private fun mangaFromElement(element: Element) = SManga.create().apply {
@@ -176,8 +193,8 @@ class MH1234 : HttpSource() {
     )
 
     companion object {
-        private const val MANGA_LIST_SELECTOR = ".comic-card"
-        private const val NEXT_PAGE_SELECTOR = ".pagination-wrapper a:contains(下一页), .pagination-wrapper a:contains(>)"
+        private const val MANGA_LIST_SELECTOR = ".comic-grid"
+        private const val LAST_PAGE_SELECTOR = ".pagination-wrapper a:contains(末页)"
         private val READER_REDIRECT_REGEX = Regex("""location\.replace\("([^"]+)"\)""")
     }
 }
