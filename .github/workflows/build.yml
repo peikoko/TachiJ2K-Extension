@@ -1,4 +1,4 @@
-name: Build Happymh
+name: Build extensions
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: happymh-build-${{ github.ref }}
+  group: extensions-build-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -31,6 +31,8 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
 
       - name: Install Android SDK 34
         run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
@@ -41,13 +43,19 @@ jobs:
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
-      - name: Build Happymh
-        run: ./gradlew :extensions:individual:zh:happymh:assembleDebug --no-daemon --stacktrace
+      - name: Build extensions
+        run: >
+          ./gradlew
+          :extensions:individual:zh:happymh:assembleDebug
+          :extensions:individual:zh:baozimhorg:assembleDebug
+          :extensions:individual:zh:manwa:assembleDebug
+          :extensions:individual:zh:mh1234:assembleDebug
+          --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: happymh-debug-${{ github.sha }}
-          path: src/zh/happymh/build/outputs/apk/debug/*.apk
+          name: extensions-debug-${{ github.sha }}
+          path: src/zh/*/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 14
